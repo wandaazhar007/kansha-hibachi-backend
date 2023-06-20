@@ -4,7 +4,7 @@ import Category from "./categoryModel.js";
 
 const { DataTypes } = Sequelize;
 
-const Products = db.define('product', {
+const Products = db.define('products', {
   uuid: {
     type: DataTypes.STRING,
     defaultValue: DataTypes.UUIDV4,
@@ -55,13 +55,6 @@ const Products = db.define('product', {
   },
   desc: {
     type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true
-    }
-  },
-  publishedAt: {
-    type: DataTypes.DATE,
     allowNull: false,
     validate: {
       notEmpty: true
