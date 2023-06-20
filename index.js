@@ -4,7 +4,9 @@ import session from 'express-session';
 import FileUpload from "express-fileupload";
 import SequelizeStore from 'connect-session-sequelize';
 import dotenv from 'dotenv';
-import UserRouter from './routes/UserRouter.js';
+// import UserRouter from './routes/UserRouter.js';
+import UserRouter from './routes/userRouter.js'
+import ProductRouter from './routes/productRouter.js';
 import db from './config/db_config.js';
 
 dotenv.config();
@@ -38,5 +40,6 @@ app.use(express.json());
 app.use(FileUpload());
 app.use(express.static("public"));
 app.use(UserRouter);
+app.use(ProductRouter);
 
 app.listen(PORT, () => console.log(`server running on port: ${PORT}`));
