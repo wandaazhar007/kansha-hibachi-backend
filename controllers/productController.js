@@ -33,15 +33,13 @@ export const getProducts = async (req, res) => {
         }
       ],
       where: {
-        [Op.or]: [{
-          name: {
-            [Op.like]: '%' + search + '%'
+        [Op.or]: [
+          {
+            categoryId: {
+              [Op.like]: '%' + search + '%'
+            }
           }
-        }, {
-          slug: {
-            [Op.like]: '%' + search + '%'
-          }
-        }]
+        ]
       },
       offset: offset,
       limit: limit,
