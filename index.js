@@ -1,16 +1,42 @@
-import express from "express";
-import fileUpload from "express-fileupload";
-import cors from "cors";
-import dotenv from "dotenv";
+import express from 'express';
+import cors from 'cors';
+import session from 'express-session';
+import FileUpload from "express-fileupload";
+import SequelizeStore from 'connect-session-sequelize';
+import dotenv from 'dotenv';
+import UserRouter from './routes/UserRouter.js';
+import db from './config/db_config.js';
 
 dotenv.config();
+const PORT = process.env.PORT
 const app = express();
-const port = process.env.PORT;
+const sessionStore = SequelizeStore(session.Store);
+const store = new sessionStore({
+  db: db
+});
+app.use(session({
+  secret: process.env.SESS_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: store,
+  cookie: {
+    secure: 'auto'
+  }
+}));
 
-app.use(cors());
-app.use(fileUpload());
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3000'
+}));
+
+(async () => {
+  console.log("database connected");
+  await db.sync();
+})();
+
 app.use(express.json());
+app.use(FileUpload());
+app.use(express.static("public"));
+app.use(UserRouter);
 
-
-
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(PORT, () => console.log(`server running on port: ${PORT}`));
