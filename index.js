@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 // import UserRouter from './routes/UserRouter.js';
 import UserRouter from './routes/userRouter.js'
 import ProductRouter from './routes/productRouter.js';
+import CategoryRouter from './routes/CategoryRoute.js';
 import db from './config/db_config.js';
 
 dotenv.config();
@@ -41,5 +42,6 @@ app.use(FileUpload());
 app.use(express.static("public"));
 app.use(UserRouter);
 app.use(ProductRouter);
+app.use(CategoryRouter);
 
 app.listen(PORT, () => console.log(`server running on port: ${PORT}`));
