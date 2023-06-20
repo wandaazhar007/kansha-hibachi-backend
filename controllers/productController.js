@@ -13,7 +13,7 @@ export const getProducts = async (req, res) => {
     const totalRows = await Products.count({
       where: {
         [Op.or]: [{
-          title: {
+          name: {
             [Op.like]: '%' + search + '%'
           }
         }, {
@@ -24,7 +24,7 @@ export const getProducts = async (req, res) => {
       }
     });
     const totalPage = Math.ceil(totalRows / limit);
-    const result = await Posts.findAll({
+    const result = await Products.findAll({
       attributes: ['uuid', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'createdAt'],
       include: [
         {
