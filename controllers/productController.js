@@ -38,6 +38,11 @@ export const getProducts = async (req, res) => {
             categoryId: {
               [Op.like]: '%' + search + '%'
             }
+          },
+          {
+            name: {
+              [Op.like]: '%' + search + '%'
+            }
           }
         ]
       },
