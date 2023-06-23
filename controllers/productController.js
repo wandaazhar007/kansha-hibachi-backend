@@ -25,7 +25,7 @@ export const getProducts = async (req, res) => {
     });
     const totalPage = Math.ceil(totalRows / limit);
     const result = await Products.findAll({
-      attributes: ['uuid', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'createdAt'],
+      attributes: ['uuid', 'id', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'createdAt'],
       include: [
         {
           model: Category,
@@ -38,7 +38,59 @@ export const getProducts = async (req, res) => {
             categoryId: {
               [Op.like]: '%' + search + '%'
             }
-          },
+          }
+        ]
+      },
+      offset: offset,
+      limit: limit,
+      order: [
+        ['id', 'DESC']
+      ]
+    });
+    res.status(200).json(
+      {
+        result: result,
+        page: page,
+        limit: limit,
+        totalRows: totalRows,
+        totalPage: totalPage
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+}
+
+export const seacrhProducts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search_query || "";
+    const offset = limit * page;
+    const totalRows = await Products.count({
+      where: {
+        [Op.or]: [{
+          name: {
+            [Op.like]: '%' + search + '%'
+          }
+        }, {
+          slug: {
+            [Op.like]: '%' + search + '%'
+          }
+        }]
+      }
+    });
+    const totalPage = Math.ceil(totalRows / limit);
+    const result = await Products.findAll({
+      attributes: ['uuid', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'createdAt'],
+      include: [
+        {
+          model: Category,
+          attributes: ['name', 'slug']
+        }
+      ],
+      where: {
+        [Op.or]: [
           {
             name: {
               [Op.like]: '%' + search + '%'
@@ -63,6 +115,34 @@ export const getProducts = async (req, res) => {
     );
   } catch (error) {
     res.status(500).json({ msg: error.message });
+  }
+}
+
+export const getProductById = async (req, res) => {
+  const checkSlug = await Products.findOne({
+    where: {
+      slug: req.params.slug
+    }
+  });
+  if (!checkSlug) return res.status(404).json({ msg: "Product not found.." });
+
+  try {
+    const response = await Products.findOne({
+      attributes: ['id', 'uuid', 'name', 'price', 'slug', 'urlImage', 'desc', 'createdAt'],
+      include: [
+        {
+          model: Category,
+          attributes: ['name', 'id']
+        }
+      ],
+      where: {
+        slug: req.params.slug
+      }
+    });
+    res.status(200).json(response);
+    // console.log(response)
+  } catch (error) {
+    res.status(201).json({ msg: error.message });
   }
 }
 

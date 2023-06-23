@@ -1,10 +1,12 @@
 import express from 'express';
-import { createProduct, getProducts } from '../controllers/productController.js';
+import { createProduct, getProductById, getProducts, seacrhProducts } from '../controllers/productController.js';
 // import { verifyUser } from '../middleware/AuthUser.js';
 
 const router = express.Router();
 
 router.get('/products', getProducts);
+router.get('/products/:slug', getProductById);
+router.get('/search-products', seacrhProducts);
 router.post('/products', createProduct);
 
 export default router;
