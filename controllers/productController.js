@@ -233,3 +233,25 @@ export const updateProduct = async (req, res) => {
     }
   }
 }
+
+
+export const deleteProducts = async (req, res) => {
+  try {
+    const product = await Products.findOne({
+      where: {
+        slug: req.params.slug
+      }
+    });
+    if (!product) return res.status(404).json({ msg: "Data not found.." });
+    const filepath = `./public/images/products/${product.image}`;
+    fs.unlinkSync(filepath);
+    await Products.destroy({
+      where: {
+        slug: product.slug
+      }
+    });
+    res.status(200).json({ msg: "Product has been deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+}
