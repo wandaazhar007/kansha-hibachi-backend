@@ -175,5 +175,61 @@ export const createProduct = async (req, res) => {
     } catch (error) {
       console.log(error.message);
     }
-  })
+  });
+}
+
+
+export const updateProduct = async (req, res) => {
+  const product = await Products.findOne({
+    where: {
+      slug: req.params.slug
+    }
+  });
+  // return console.log(post.image);
+  if (!product) return res.status(404).json({ msg: "data not found" });
+  let fileName = "";
+  if (req.files === null) {
+    fileName = post.image;
+  } else {
+    const image = req.files.image;
+    const fileSize = image.data.length;
+    const ext = path.extname(image.name);
+    fileName = image.md5 + ext;
+    const allowedType = ['.png', '.jpg', '.jpeg'];
+
+    if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: "invalid image" });
+    if (fileSize > 5000000) return res.status(422).json({ msg: " Image must be less then 5Mb" });
+    const filepath = `./public/images/${post.image}`;
+    fs.unlinkSync(filepath);
+    image.mv(`./public/images/${fileName}`, (err) => {
+      if (err) return res.status(500).json({ msg: err.message });
+    });
+
+    const name = req.body.name;
+    const slug = req.body.slug;
+    const price = req.body.price;
+    const desc = req.body.desc;
+    const categoryId = req.body.categoryId;
+    const fileName = image.md5 + ext;
+    const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
+
+    try {
+      await Posts.update({
+        name: name,
+        slug: slug,
+        price: price,
+        image: fileName,
+        urlImage: url,
+        desc: desc,
+        categoryId: categoryId
+      }, {
+        where: {
+          slug: req.params.slug
+        }
+      });
+      res.status(200).json({ msg: "Success, Product has been updated..." });
+    } catch (error) {
+      res.status(500).json({ msg: error.message });
+    }
+  }
 }
