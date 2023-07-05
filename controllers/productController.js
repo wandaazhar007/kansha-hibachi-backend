@@ -57,6 +57,15 @@ export const getProducts = async (req, res) => {
   }
 }
 
+export const getAllProducts = async (req, res) => {
+  try {
+    const response = await Products.findAll();
+    res.status(200).json(response)
+  } catch (error) {
+    res.status({ msg: error.message })
+  }
+}
+
 export const seacrhProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 0;
@@ -115,12 +124,12 @@ export const seacrhProducts = async (req, res) => {
 }
 
 export const getProductById = async (req, res) => {
-  const checkSlug = await Products.findOne({
+  const checkId = await Products.findOne({
     where: {
-      slug: req.params.slug
+      id: req.params.id
     }
   });
-  if (!checkSlug) return res.status(404).json({ msg: "Product not found.." });
+  if (!checkId) return res.status(404).json({ msg: "Product not found.." });
 
   try {
     const response = await Products.findOne({
@@ -132,7 +141,36 @@ export const getProductById = async (req, res) => {
         }
       ],
       where: {
-        slug: req.params.slug
+        id: req.params.id
+      }
+    });
+    res.status(200).json(response);
+    // console.log(response)
+  } catch (error) {
+    res.status(201).json({ msg: error.message });
+  }
+}
+
+
+export const getProductCart = async (req, res) => {
+  const checkId = await Products.findOne({
+    where: {
+      id: req.params.id
+    }
+  });
+  if (!checkId) return res.status(404).json({ msg: "Product not found.." });
+
+  try {
+    const response = await Products.findAll({
+      attributes: ['id', 'uuid', 'name', 'price', 'slug', 'urlImage', 'desc', 'createdAt'],
+      include: [
+        {
+          model: Category,
+          attributes: ['name', 'id']
+        }
+      ],
+      where: {
+        id: req.params.id
       }
     });
     res.status(200).json(response);
