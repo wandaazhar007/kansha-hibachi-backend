@@ -57,6 +57,59 @@ export const getProducts = async (req, res) => {
   }
 }
 
+export const getProductsPerCategory = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 0;
+    const limit = parseInt(req.query.limit) || 1000;
+    const search = req.query.search_query || "";
+    const offset = limit * page;
+    const totalRows = await Products.count({
+      where: {
+        [Op.or]: [{
+          categoryId: {
+            [Op.like]: '%' + search + '%'
+          }
+        }]
+      }
+    });
+    const totalPage = Math.ceil(totalRows / limit);
+    const result = await Products.findAll({
+      attributes: ['uuid', 'id', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'createdAt'],
+      include: [
+        {
+          model: Category,
+          attributes: ['name', 'slug']
+        }
+      ],
+      where: {
+        [Op.or]: [
+          {
+            categoryId: {
+              [Op.like]: '%' + search + '%'
+            }
+          }
+        ]
+      },
+      offset: offset,
+      limit: limit,
+      order: [
+        ['id', 'DESC']
+      ]
+    });
+    res.status(200).json(
+      {
+        result: result,
+        page: page,
+        limit: limit,
+        totalRows: totalRows,
+        totalPage: totalPage
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+}
+
 export const getAllProducts = async (req, res) => {
   try {
     const response = await Products.findAll();
@@ -66,10 +119,10 @@ export const getAllProducts = async (req, res) => {
   }
 }
 
-export const seacrhProducts = async (req, res) => {
+export const searchProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 0;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 1000;
     const search = req.query.search_query || "";
     const offset = limit * page;
     const totalRows = await Products.count({
@@ -220,14 +273,14 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   const product = await Products.findOne({
     where: {
-      slug: req.params.slug
+      id: req.params.id
     }
   });
-  // return console.log(post.image);
+  // return console.log(product.image);
   if (!product) return res.status(404).json({ msg: "data not found" });
   let fileName = "";
   if (req.files === null) {
-    fileName = post.image;
+    fileName = product.image;
   } else {
     const image = req.files.image;
     const fileSize = image.data.length;
@@ -237,38 +290,38 @@ export const updateProduct = async (req, res) => {
 
     if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: "invalid image" });
     if (fileSize > 5000000) return res.status(422).json({ msg: " Image must be less then 5Mb" });
-    const filepath = `./public/images/${post.image}`;
+    const filepath = `./public/images/products/${product.image}`;
     fs.unlinkSync(filepath);
-    image.mv(`./public/images/${fileName}`, (err) => {
+    image.mv(`./public/images/products/${fileName}`, (err) => {
       if (err) return res.status(500).json({ msg: err.message });
     });
+  }
 
-    const name = req.body.name;
-    const slug = req.body.slug;
-    const price = req.body.price;
-    const desc = req.body.desc;
-    const categoryId = req.body.categoryId;
-    const fileName = image.md5 + ext;
-    const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
+  const name = req.body.name;
+  const slug = req.body.slug;
+  const price = req.body.price;
+  const desc = req.body.desc;
+  const categoryId = req.body.categoryId;
+  // const fileName = image.md5 + ext;
+  const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
 
-    try {
-      await Posts.update({
-        name: name,
-        slug: slug,
-        price: price,
-        image: fileName,
-        urlImage: url,
-        desc: desc,
-        categoryId: categoryId
-      }, {
-        where: {
-          slug: req.params.slug
-        }
-      });
-      res.status(200).json({ msg: "Success, Product has been updated..." });
-    } catch (error) {
-      res.status(500).json({ msg: error.message });
-    }
+  try {
+    await Products.update({
+      name: name,
+      slug: slug,
+      price: price,
+      image: fileName,
+      urlImage: url,
+      desc: desc,
+      categoryId: categoryId
+    }, {
+      where: {
+        id: req.params.id
+      }
+    });
+    res.status(200).json({ msg: "Success, Product has been updated..." });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
   }
 }
 
