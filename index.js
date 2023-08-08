@@ -4,6 +4,7 @@ import session from 'express-session';
 import FileUpload from "express-fileupload";
 import SequelizeStore from 'connect-session-sequelize';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 // import UserRouter from './routes/UserRouter.js';
 import UserRouter from './routes/userRouter.js'
 import ProductRouter from './routes/productRouter.js';
@@ -37,6 +38,12 @@ app.use(cors({
   await db.sync();
 })();
 
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:5173'
+}));
+
+app.use(cookieParser());
 app.use(express.json());
 app.use(FileUpload());
 app.use(express.static("public"));

@@ -243,7 +243,9 @@ export const createProduct = async (req, res) => {
   const categoryId = req.body.categoryId;
   const fileSize = image.data.length;
   const ext = path.extname(image.name);
-  const fileName = image.md5 + ext;
+  const random = Math.floor(Math.random() * 10000);
+  const fileName = image.md5 + random + ext;
+  // return console.log(fileName);
   const url = `${req.protocol}://${req.get("host")}/images/products/${fileName}`;
   const allowedType = ['.png', '.jpg', '.jpeg'];
 
@@ -330,7 +332,7 @@ export const deleteProducts = async (req, res) => {
   try {
     const product = await Products.findOne({
       where: {
-        slug: req.params.slug
+        id: req.params.id
       }
     });
     if (!product) return res.status(404).json({ msg: "Data not found.." });

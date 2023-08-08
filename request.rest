@@ -1,0 +1,33 @@
+GET http://localhost:2000/user
+Authorization: Bearer 
+
+###
+GET http://localhost:2000/token
+
+
+# LOGIN
+###
+POST http://localhost:2000/login
+Content-Type: application/json
+
+{
+  "email" : "wandaazhar@gmail.com",
+  "password": "000000"
+}
+
+# LOGOUT
+###
+DELETE  http://localhost:2000/logout
+
+# REGISTER
+###
+POST http://localhost:2000/user
+Content-Type: application/json
+
+{
+  "name": "Wanda Azhar",
+  "email": "wandaazhar@gmail.com",
+  "role": 1,
+  "password": "000000",
+  "confPassword": "000000"
+}
