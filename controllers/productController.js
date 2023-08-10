@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
-import Products from "../models/productModel.js";
-import Category from "../models/categoryModel.js";
+import Products from "../models/ProductModel.js";
+import Category from "../models/CategoryModel.js";
 import { Op } from "sequelize";
 
 export const getProducts = async (req, res) => {

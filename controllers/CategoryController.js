@@ -1,4 +1,4 @@
-import Category from "../models/categoryModel.js";
+import Category from "../models/CategoryModel.js";
 import { Op } from "sequelize";
 
 export const getCategory = async (req, res) => {
