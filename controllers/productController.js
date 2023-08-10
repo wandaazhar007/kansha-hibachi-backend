@@ -21,7 +21,7 @@ export const getProducts = async (req, res) => {
     });
     const totalPage = Math.ceil(totalRows / limit);
     const result = await Products.findAll({
-      attributes: ['uuid', 'id', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'createdAt'],
+      attributes: ['uuid', 'id', 'name', 'slug', 'price', 'image', 'urlImage', 'desc', 'categoryId', 'createdAt'],
       include: [
         {
           model: Category,
@@ -153,6 +153,11 @@ export const searchProducts = async (req, res) => {
             name: {
               [Op.like]: '%' + search + '%'
             }
+          },
+          {
+            price: {
+              [Op.like]: '%' + search + '%'
+            }
           }
         ]
       },
@@ -266,6 +271,8 @@ export const createProduct = async (req, res) => {
       });
       res.status(200).json({ msg: "Products has been saved" });
     } catch (error) {
+      // res.status(201).json({ msg: error.message });
+      // if (error) return res.status(500).json({ msg: err.message });
       console.log(error.message);
     }
   });
@@ -340,7 +347,7 @@ export const deleteProducts = async (req, res) => {
     fs.unlinkSync(filepath);
     await Products.destroy({
       where: {
-        slug: product.slug
+        id: product.id
       }
     });
     res.status(200).json({ msg: "Product has been deleted successfully" });

@@ -51,10 +51,10 @@ export const getCategory = async (req, res) => {
 
 export const getCategoryById = async (req, res) => {
   try {
-    const response = await Category.findAll({
+    const response = await Category.findOne({
       attributes: ['id', 'uuid', 'name', 'slug'],
       where: {
-        slug: req.params.id
+        id: req.params.id
       }
     });
     res.status(200).json(response);
@@ -87,7 +87,7 @@ export const updateCategory = async (req, res) => {
   const { name, slug } = req.body;
   const checkSlug = await Category.findOne({
     where: {
-      slug: req.params.id
+      id: req.params.id
     }
   });
   if (!checkSlug) return res.status(500).json({ msg: "Category not found.." });
@@ -98,7 +98,7 @@ export const updateCategory = async (req, res) => {
       slug: slug
     }, {
       where: {
-        slug: req.params.id
+        id: req.params.id
       }
     });
     res.status(200).json({ msg: "Category has been updated.." });
@@ -111,7 +111,7 @@ export const deleteCategory = async (req, res) => {
   // const { name, slug } = req.body;
   const checkSlug = await Category.findOne({
     where: {
-      uuid: req.params.id
+      id: req.params.id
     }
   });
   if (!checkSlug) return res.status(404).json({ msg: "Category not found.." });
@@ -119,7 +119,7 @@ export const deleteCategory = async (req, res) => {
   try {
     await Category.destroy({
       where: {
-        uuid: req.params.id
+        id: req.params.id
       }
     });
     res.status(200).json({ msg: "Category has been deleted successfully.." });

@@ -27,7 +27,8 @@ const Products = db.define('products', {
     validate: {
       notEmpty: true,
       len: [3, 100]
-    }
+    },
+    unique: true
   },
   price: {
     type: DataTypes.DECIMAL,

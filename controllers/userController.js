@@ -1,35 +1,114 @@
+import path from "path";
+import fs from "fs";
 import Users from "../models/userModel.js";
 import bcrypt, { hash } from "bcrypt";
 import jwt from "jsonwebtoken";
+import { Op } from "sequelize";
 
 export const getUsers = async (req, res) => {
+  const page = parseInt(req.query.page) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search_query || "";
+  const offset = limit * page;
+  const totalRows = await Users.count({
+    where: {
+      [Op.or]: [{
+        name: {
+          [Op.like]: '%' + search + '%'
+        }
+      }, {
+        email: {
+          [Op.like]: '%' + search + '%'
+        }
+      }]
+    }
+  });
+  const totalPage = Math.ceil(totalRows / limit);
+
+  const result = await Users.findAll({
+    attributes: ['id', 'uuid', 'name', 'email', 'createdAt', 'role', 'image', 'urlImage'],
+    where: {
+      [Op.or]: [{
+        name: {
+          [Op.like]: '%' + search + '%'
+        }
+      }, {
+        email: {
+          [Op.like]: '%' + search + '%'
+        }
+      }]
+    },
+    offset: offset,
+    limit: limit,
+    order: [
+      ['id', 'DESC']
+    ]
+  });
+  res.json({
+    result: result,
+    page: page,
+    limit: limit,
+    totalRows: totalRows,
+    totalPage: totalPage
+  });
+}
+
+export const registerUser = async (req, res) => {
+  const { name, email, password, confPassword, role } = req.body;
+  const image = req.files.image;
+  const fileSize = image.data.length;
+  const ext = path.extname(image.name);
+  const random = Math.floor(Math.random() * 10000);
+  const salt = await bcrypt.genSalt();
+  const hashPassword = await bcrypt.hash(password, salt);
+  const fileName = image.md5 + random + ext;
+  // return console.log(fileName);
+  const url = `${req.protocol}://${req.get("host")}/images/users/${fileName}`;
+  const allowedType = ['.png', '.jpg', '.jpeg'];
+
+  if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: "Invalid Images" });
+  if (fileSize > 5000000) return res.status(422).json({ msg: "Image must be less than 5 MB" });
+
+  if (password !== confPassword) return res.status(400).json({ msg: "Password doesn't match" });
+
+  image.mv(`./public/images/users/${fileName}`, async (err) => {
+    if (err) return res.status(500).json({ msg: err.message });
+    try {
+      await Users.create({
+        name: name,
+        email: email,
+        password: hashPassword,
+        role: role,
+        image: fileName,
+        urlImage: url
+      });
+      res.status(200).json({ msg: "User has been created successfully.." })
+    } catch (error) {
+      res.status(500).json({ msg: error.message });
+      console.log(error.message);
+    }
+  }
+  )
+}
+
+export const getUserById = async (req, res) => {
+  const checkId = await Users.findOne({
+    where: {
+      id: req.params.id
+    }
+  });
+  if (!checkId) return res.status(404).json({ msg: "User not found.." });
+
   try {
-    const response = await Users.findAll({
-      attributes: ['id', 'name', 'email', 'role']
+    const response = await Users.findOne({
+      attributes: ['id', 'uuid', 'name', 'email', 'role', 'urlImage', 'createdAt'],
+      where: {
+        id: req.params.id
+      }
     });
     res.status(200).json(response);
   } catch (error) {
     res.status(201).json({ msg: error.message });
-  }
-}
-
-export const registerUser = async (req, res) => {
-  const { name, email, password, confPassword, role, image, urlImage } = req.body;
-  if (password !== confPassword) return res.status(400).json({ msg: "Password doesn't match" });
-  const salt = await bcrypt.genSalt();
-  const hashPassword = await bcrypt.hash(password, salt);
-  try {
-    await Users.create({
-      name: name,
-      email: email,
-      password: hashPassword,
-      role: role,
-      image: image,
-      urlImage: urlImage
-    });
-    res.status(200).json({ msg: "User has been created successfully.." })
-  } catch (error) {
-    res.status(500).json({ msg: error.message });
   }
 }
 
