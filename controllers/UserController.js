@@ -112,6 +112,28 @@ export const getUserById = async (req, res) => {
   }
 }
 
+
+export const deleteUserById = async (req, res) => {
+  try {
+    const user = await Users.findOne({
+      where: {
+        id: req.params.id
+      }
+    });
+    if (!user) return res.status(404).json({ msg: "user not found" });
+    const filepath = `public/images/users/${user.image}`;
+    fs.unlinkSync(filepath);
+    await Users.destroy({
+      where: {
+        id: user.id
+      }
+    });
+    res.status(200).json({ msg: "User has been deleted successfully.." });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+}
+
 export const login = async (req, res) => {
   try {
     const user = await Users.findAll({
