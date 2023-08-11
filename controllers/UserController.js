@@ -4,7 +4,6 @@ import Users from "../models/UserModel.js";
 import bcrypt, { hash } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
-import e from "express";
 
 export const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
@@ -123,7 +122,7 @@ export const deleteUserById = async (req, res) => {
     });
     if (!user) return res.status(404).json({ msg: "user not found" });
     const filepath = `public/images/users/${user.image}`;
-    fs.unlink(filepath);
+    fs.unlinkSync(filepath);
     await Users.destroy({
       where: {
         id: user.id
