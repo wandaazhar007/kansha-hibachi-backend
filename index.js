@@ -5,7 +5,6 @@ import FileUpload from "express-fileupload";
 import SequelizeStore from 'connect-session-sequelize';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-// import UserRouter from './routes/UserRouter.js';
 import UserRouter from './routes/UserRouter.js'
 import ProductRouter from './routes/ProductRouter.js';
 import CategoryRouter from './routes/CategoryRoute.js'
@@ -40,7 +39,7 @@ app.use(cors({
 
 app.use(cors({
   credentials: true,
-  origin: 'http://localhost:5173'
+  origin: '*'
 }));
 
 app.use(cookieParser());
