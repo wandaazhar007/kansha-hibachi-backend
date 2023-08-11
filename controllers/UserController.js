@@ -4,6 +4,7 @@ import Users from "../models/UserModel.js";
 import bcrypt, { hash } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
+import e from "express";
 
 export const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
@@ -109,6 +110,28 @@ export const getUserById = async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     res.status(201).json({ msg: error.message });
+  }
+}
+
+
+export const deleteUserById = async (req, res) => {
+  try {
+    const user = await Users.findOne({
+      where: {
+        id: req.params.id
+      }
+    });
+    if (!user) return res.status(404).json({ msg: "user not found" });
+    const filepath = `public/images/users/${user.image}`;
+    fs.unlink(filepath);
+    await Users.destroy({
+      where: {
+        id: user.id
+      }
+    });
+    res.status(200).json({ msg: "User has been deleted successfully.." });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
   }
 }
 
