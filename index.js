@@ -27,20 +27,21 @@ app.use(session({
   }
 }));
 
-app.use(cors({
-  credentials: true,
-  origin: '*'
-}));
+// app.use(cors({
+//   credentials: true,
+//   origin: '*'
+// }));
 
 (async () => {
   console.log("database connected");
   await db.sync();
 })();
 
-app.use(cors({
-  credentials: true,
-  origin: '*'
-}));
+// app.use(cors({
+//   credentials: true,
+//   origin: '*'
+// }));
+app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 
 app.use(cookieParser());
 app.use(express.json());
