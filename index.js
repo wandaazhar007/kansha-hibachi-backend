@@ -41,7 +41,7 @@ app.use(session({
 //   credentials: true,
 //   origin: '*'
 // }));
-app.use(cors({ credentials: true, origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000', 'http://localhost:3003', 'http://kanshamissouri.com', 'http://admin.kanshamissouri.com'] }));
+app.use(cors({ credentials: true, origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000', 'http://localhost:3003', 'https://kanshamissouri.com', 'https://admin.kanshamissouri.com'] }));
 // app.use(cors({ credentials: true, origin: '*' }));
 
 app.use(cookieParser());

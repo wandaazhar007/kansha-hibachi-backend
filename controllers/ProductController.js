@@ -271,8 +271,9 @@ export const createProduct = async (req, res) => {
       });
       res.status(200).json({ msg: "Products has been saved" });
     } catch (error) {
-      if (error) return res.status(500).json({ msg: err.message });
+      // if (error) return res.status(500).json({ msg: err.message });
       // res.status(201).json({ msg: error.message });
+      res.status(500).json({ msg: error.message });
       // console.log(error.message);
     }
   });
